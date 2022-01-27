@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
+import PropTypes from 'prop-types';
 
 import styles from './Form.module.css';
 
-const Form = () => {
+const Form = ({ submitSearch }) => {
     const [location, setLocation] = useState('');
+
     const locationChangeHandler = e => {
         setLocation(e.target.value);
     };
@@ -11,7 +13,9 @@ const Form = () => {
     const onSubmit = e => {
         e.preventDefault();
         if (!location || location === '') return;
+        submitSearch(location);
     };
+
     return (
         <form onSubmit={onSubmit}>
             <input
@@ -24,11 +28,15 @@ const Form = () => {
                 onChange={locationChangeHandler}
             />
 
-            <button type="submit" className={styles.button}>
+            <button type="submit" onSubmit={onSubmit} className={styles.button}>
                 SEARCH
             </button>
         </form>
     );
+};
+
+Form.propTypes = {
+    submitSearch: PropTypes.func.isRequired,
 };
 
 export default Form;
