@@ -1,6 +1,10 @@
 import { useState } from 'react';
 import axios from 'axios';
 
+import getCurrentDayDetailedForecast from '../helpers/getCurrentDayDetailedForecast';
+import getCurrentDayForecast from '../helpers/getCurrentDayForecast';
+import getUpcomingDaysForecast from '../helpers/getUpcomingDaysForecast';
+
 const BASE_URL = 'https://www.metaweather.com/api/location';
 const CROSS_DOMAIN = 'https://the-ultimate-api-challenge.herokuapp.com';
 const REQUEST_URL = `${CROSS_DOMAIN}/${BASE_URL}`;
@@ -32,7 +36,15 @@ const useForecast = () => {
         return data;
     };
 
-    // call the API
+    const gatherForecastData = data => {
+        const currentDayDetails = getCurrentDayDetailedForecast(data.consolidated_weather[0]);
+        const currentDay = getCurrentDayForecast(data.consolidated_weather[0], data.title);
+        const upcomingDays = getUpcomingDaysForecast(data.consolidated_weather);
+
+        setForecast({ currentDayDetails, currentDay, upcomingDays });
+        setLoading(false);
+    };
+
     const submitRequest = async location => {
         setLoading(true);
         setError(false);
@@ -40,9 +52,11 @@ const useForecast = () => {
         const response = await getWoeid(location);
         if (!response.woeid) return;
 
-        const data = await getForecastData(response[0].woeid);
+        const data = await getForecastData(response.woeid);
         if (!data) return;
         console.log({ data });
+
+        gatherForecastData(data);
     };
 
     return {
